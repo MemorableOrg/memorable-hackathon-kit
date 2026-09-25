@@ -11,6 +11,18 @@ What a hacker gets when they add Memorable to an agent, measured. Three agents, 
 
 Planner calls are `claude -p` invocations with the haiku model. Turns and tool calls for 01 come from Claude Code's stream-json output.
 
+## Pick your route
+
+| You are building | Start here | Then |
+|---|---|---|
+| A coding agent on a repo (Claude Code, Codex, Cursor, Devin, Antigravity) | `npx memorable-cli` in the repo | pick the agent, say yes to a page for this project, press Approve in the tab. Hooks and consent are written for you. Do a task twice. |
+| Your own agent loop (browser, voice, home, research, ops) | memorable.sh/dash, Environments, pick the card, Save, Copy prompt | paste the prompt into the agent that builds your project. It adds recall, replay, record. `PROMPT.md` here is the same prompt with the shape rules. Run the task twice. |
+| No terminal (claude.ai, Cowork, Claude desktop) | memorable.sh/dash, Connect, Create a connector | add the link in Claude under Connectors. Claude searches and records on its own. |
+| A hosted service with no Node | memorable.sh/dash, Account, New key for an agent | `POST /v1/extract` with the key. Store the draft yourself. |
+| A team on several laptops | one person makes the environment | Connect, More, invite by email. Everyone pastes the same prompt or runs `npx memorable-cli` and picks the same name. |
+
+Bare `memorable login` inside an agent never finishes and is refused. Agents get a key from one of the rows above.
+
 ## Files
 
 - `PROMPT.md` is the one prompt a hacker pastes into their agent. Build 02 was integrated by a headless Claude Code agent given only that prompt (25 turns, $0.69, 6 minutes). Build 03 was integrated by hand following the same prompt. Build 04 was integrated by a headless agent given PROMPT v2 (30 turns, $1.02, 9 minutes); it found the line-truncation problem below on its own and worked around it.
