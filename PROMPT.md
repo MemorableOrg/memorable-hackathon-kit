@@ -52,7 +52,8 @@ memorable show procedures/<slug>                       # prints the steps, one p
 Shape rules. Each one was found by getting `not stored` back:
 
 - Every step goes in `input.command` as one string in the form `tool key=value key=value`. The extractor only reads `command`; structured inputs are dropped. Use the same format you parse in replay.
-- Leave volatile values out of the command: summaries, timestamps, ids. Two identical runs must produce identical commands, or every run stores a new copy.
+- Leave volatile values out of the command: summaries, timestamps, ids, LLM-written text. Two identical runs must produce identical commands, or every run stores a new copy.
+- Keep commands short. `memorable show` truncates long lines, and a truncated line cannot be replayed. Store what identifies the action (path, url, selector, key), not payloads (file bodies, note text). Rebuild payloads at replay time from earlier results in the same run.
 - Put `"result": {"ok": true}` on every step whose outcome you know, and always on the last step. A trace whose last step has no result is refused (`no_postcondition`).
 - A run that only read things (get_state, search, fetch) is refused (`read_only`). Record runs that changed something.
 - Record only runs that met the goal. Do not record a run that gave up.
@@ -61,7 +62,7 @@ Shape rules. Each one was found by getting `not stored` back:
 
 ## 4. Prove it
 
-Run the same task twice and print the planner call count for each. The second run must print a recall hit and 0 planner calls (or the number left after the failed step, if one failed). Reference numbers from this kit: home agent 7 planner calls then 0, browser agent 8 then 0, Claude Code 10 turns then 7.
+Run the same task twice and print the planner call count for each. The second run must print a recall hit and 0 planner calls (or the number left after the failed step, if one failed). Reference numbers from this kit: home agent 7 planner calls then 0, browser agent 8 then 0, research agent 5 then 0, Claude Code 10 turns then 7.
 
 ## 5. Finish
 
