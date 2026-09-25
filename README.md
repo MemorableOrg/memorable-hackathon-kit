@@ -21,9 +21,8 @@ Planner calls are `claude -p` invocations with the haiku model. Turns and tool c
 
 ```sh
 npm i -g memorable-cli
-export MEMORABLE_API_URL=https://memorable-extraction-api.memorable.workers.dev
-export MEMORABLE_API_KEY=mk_...
 export MEMORABLE_HOME=$PWD/.memorable-home    # optional: keep the kit's store apart from your own
+echo 'mk_...' | memorable login --paste       # key from memorable.sh/dash, Environments, Connect
 memorable enable && memorable doctor
 
 cd builds/02-home-agent && node agent.mjs "good night: lights off everywhere, thermostat to 68, lock the front door"   # run twice
@@ -40,6 +39,7 @@ Each of these cost a `not stored` or a wasted run, in the order they were hit.
 3. `memorable show` prints prose. Replay needs the step lines parsed back with a regex. A `show --json` would make replay a two-line loop.
 4. Titles come from the first command, not the task: "Execute set_lights room=kitchen state=off". `memorable list` is unreadable after five runs.
 5. Two runs with a summary string in the last step store two procedures. Volatile args have to stay out of commands.
-6. The headless agent ran `memorable forget --yes` to get a clean store and wiped consent for the machine. The prompt now bans it.
-7. The Claude Code hook names the verify command but not the files edited, so the warm coding run still reads two files. Read and Edit steps are classed `other` and dropped from the injected text.
-8. `memorable show` truncates long step lines with `… (line truncated)`. A step whose command carries a note body or file text cannot be replayed. Commands have to carry identifiers only.
+6. `memorable login` inside an agent's shell tool cannot finish: the tool times out before a person approves the browser page. `echo 'mk_…' | memorable login --paste` on the published CLI signs in with no browser. The prompt now uses that line and the dashboard's Connect step mints the key into it.
+7. The headless agent ran `memorable forget --yes` to get a clean store and wiped consent for the machine. The prompt now bans it.
+8. The Claude Code hook names the verify command but not the files edited, so the warm coding run still reads two files. Read and Edit steps are classed `other` and dropped from the injected text.
+9. `memorable show` truncates long step lines with `… (line truncated)`. A step whose command carries a note body or file text cannot be replayed. Commands have to carry identifiers only.

@@ -5,14 +5,13 @@ You are integrating Memorable, procedural memory for agents, into the agent in t
 ## 1. Install and connect (once per machine)
 
 ```sh
-npm i -g memorable-cli            # no npm? curl -fsSL https://memorable.sh/install.sh | sh
-export MEMORABLE_API_URL=https://memorable-extraction-api.memorable.workers.dev
-export MEMORABLE_API_KEY=mk_...   # the key you were given. No key? run `memorable login`, the human approves in the browser
-memorable enable                  # write consent; nothing is stored before this
-memorable doctor                  # every line must read ✓
+npm i -g memorable-cli                       # no npm? curl -fsSL https://memorable.sh/install.sh | sh
+echo 'mk_...' | memorable login --paste      # the key you were given; signs in with no browser
+memorable enable                             # write consent; nothing is stored before this
+memorable doctor                             # every line must read ✓
 ```
 
-Put the two exports where the agent process inherits them (.env, shell profile, or the launcher). Never run `memorable forget` or `memorable disable`: both turn capture off for the whole machine. To test a cold run, use a goal string you have not used before.
+No key? Stop and ask the human for one from memorable.sh/dash (Environments, then Connect). Do not run `memorable login` without `--paste`: it opens a browser and waits, and your shell tool times out before anyone approves. Never print the key back. Never run `memorable forget` or `memorable disable`: both turn capture off for the whole machine. To test a cold run, use a goal string you have not used before.
 
 ## 2. If the agent is Claude Code, Codex, Antigravity or Devin
 
