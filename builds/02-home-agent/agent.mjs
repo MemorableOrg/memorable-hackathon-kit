@@ -31,11 +31,34 @@ function recall(goal) {
   return slug ? memorable(['show', slug]) : '';
 }
 
+// "  3. [execute] set_lights: room=kitchen state=off"  ->  { name: 'set_lights', input: { room: 'kitchen', state: 'off' } }
+function stepsOf(reference) {
+  return reference.split('\n').map((l) => l.match(/^\s*\d+\.\s+\[\w+\]\s+([\w.-]+):\s*(.*)$/)).filter(Boolean).map((m) => {
+    const [name, ...rest] = m[2].trim().split(/\s+(?=\w+=)/);
+    const input = {};
+    for (const kv of rest) { const [k, ...v] = kv.split('='); input[k] = isNaN(v.join('=')) ? v.join('=') : Number(v.join('='));
+    }
+    return { name: name === m[1] ? name : m[1], input };
+  });
+}
+
+// Replay stored steps without the planner. Stops at the first step that is not ok; the planner takes over from there.
+function replay(steps, history) {
+  for (const step of steps) {
+    if (step.name === 'done') return true;
+    const result = tools[step.name] ? tools[step.name](step.input) : { error: `unknown tool ${step.name}` };
+    history.push({ name: step.name, input: step.input, result });
+    console.log(`replay ${step.name} ${JSON.stringify(step.input)} -> ${JSON.stringify(result)}`);
+    if (result.error || result.ok === false) return false;
+  }
+  return true;
+}
+
 function record(goal, history) {
   if (history.at(-1)?.name !== 'done') return; // only record runs that finished the goal
   const tool_calls = history.map((h) => ({
     name: h.name,
-    input: { command: `${h.name} ${Object.entries(h.input).map(([k, v]) => `${k}=${v}`).join(' ')}`.trim() },
+    input: { command: h.name === 'done' ? 'done' : `${h.name} ${Object.entries(h.input).map(([k, v]) => `${k}=${v}`).join(' ')}`.trim() },
     ...(h.result ? { result: h.result } : {}),
   }));
   const trace = { session_id: randomUUID(), task_description: goal, harness: 'home-agent', tool_calls };
@@ -56,7 +79,11 @@ Reply with exactly one JSON object {"name": ..., "input": {...}} for the next to
 const goal = process.argv.slice(2).join(' ') || 'good night: lights off everywhere, thermostat to 68, lock the front door';
 const reference = recall(goal);
 const history = [];
-for (let i = 0; i < 8; i++) {
+let planned = 0;
+const replayed = reference ? replay(stepsOf(reference), history) : false;
+if (replayed) { history.push({ name: 'done', input: { summary: 'replayed from memory' }, result: { ok: true } }); console.log('done (replayed, planner not called)'); }
+for (let i = 0; !replayed && i < 8; i++) {
+  planned++;
   const call = plan(goal, history, reference);
   const result = tools[call.name] ? tools[call.name](call.input ?? {}) : { error: `unknown tool ${call.name}` };
   history.push({ name: call.name, input: call.input ?? {}, result });
@@ -64,5 +91,5 @@ for (let i = 0; i < 8; i++) {
   if (call.name === 'done') break;
 }
 console.log('final state', JSON.stringify(house));
-console.log(`planner calls: ${history.length}`);
+console.log(`planner calls: ${planned} · recall: ${reference ? 'hit' : 'miss'}`);
 record(goal, history);

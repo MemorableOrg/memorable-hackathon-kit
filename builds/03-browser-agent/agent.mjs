@@ -10,12 +10,33 @@ function recall(goal) {
   const hit = memorable(['recall', goal]).match(/procedures\/[\w-]+/);
   return hit ? memorable(['show', hit[0]]) : '';
 }
+function stepsOf(reference) {
+  return reference.split('\n').map((l) => l.match(/^\s*\d+\.\s+\[\w+\]\s+([\w.-]+):\s*(.*)$/)).filter(Boolean).map((m) => {
+    const [name, ...rest] = m[2].trim().split(/\s+(?=\w+=)/);
+    const input = {};
+    for (const kv of rest) { const [k, ...v] = kv.split('='); input[k] = v.join('='); }
+    return { name, input };
+  });
+}
+
+function replay(steps, history) {
+  let page;
+  for (const step of steps) {
+    const result = api[step.name] ? api[step.name](step.input) : { error: `unknown action ${step.name}` };
+    history.push({ name: step.name, input: step.input, result: result.url ? { url: result.url } : result });
+    console.log(`replay ${step.name} ${JSON.stringify(step.input)} -> ${result.url ?? JSON.stringify(result)}`);
+    if (result.error) return null;
+    page = result;
+  }
+  return page;
+}
+
 function record(goal, history) {
   const trace = {
     session_id: `browser-${Date.now()}`,
     task_description: goal,
     harness: 'browser-agent',
-    tool_calls: history.map((h) => ({
+    tool_calls: history.filter((h) => h.name !== 'done').map((h) => ({
       name: h.name,
       input: { command: `${h.name} ${Object.entries(h.input).map(([k, v]) => `${k}=${v}`).join(' ')}` },
       result: { ok: !h.result.error && h.result.ok !== false },
@@ -44,7 +65,10 @@ const reference = recall(goal);
 console.log(reference ? 'recall: hit' : 'recall: miss');
 let page = api.goto({ url: '/' });
 const history = [];
-for (let i = 0; i < 12; i++) {
+let planned = 0;
+if (reference) { const p = replay(stepsOf(reference), history); if (p) page = p; }
+for (let i = 0; !state.confirmed && i < 12; i++) {
+  planned++;
   const call = plan(page, history);
   const result = api[call.name] ? api[call.name](call.input ?? {}) : { error: `unknown action ${call.name}` };
   history.push({ name: call.name, input: call.input ?? {}, result: result.url ? { url: result.url } : result });
@@ -52,5 +76,5 @@ for (let i = 0; i < 12; i++) {
   if (call.name === 'done') break;
   page = result;
 }
-console.log(`confirmed: ${state.confirmed} · planner calls: ${history.length}`);
+console.log(`confirmed: ${state.confirmed} · planner calls: ${planned}`);
 if (state.confirmed) console.log(record(goal, history));
