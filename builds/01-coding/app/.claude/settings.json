@@ -1,0 +1,7 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      { "hooks": [ { "type": "command", "command": "memorable hook user-prompt", "timeout": 10 } ] }
+    ]
+  }
+}
