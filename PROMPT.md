@@ -13,6 +13,8 @@ memorable doctor                             # every line must read ✓
 
 No key? Stop and ask the human for one from memorable.sh/dash (Environments, then Connect). Do not run `memorable login` without `--paste`: it opens a browser and waits, and your shell tool times out before anyone approves. Never print the key back. Never run `memorable forget` or `memorable disable`: both turn capture off for the whole machine. To test a cold run, use a goal string you have not used before.
 
+Your own permission system may refuse one of these lines. Claude Code in auto mode refuses a key on a command line as data exfiltration, and it can refuse `memorable enable` too. That is your harness, not Memorable: name the line it refused and ask the human to approve it. They can also allow `Bash(memorable:*)` in their Claude Code settings so only the key line ever asks. Do not work around a refusal, do not skip the command, and do not report it as Memorable being broken.
+
 ## 2. If the agent is Claude Code, Codex, Antigravity or Devin
 
 ```sh

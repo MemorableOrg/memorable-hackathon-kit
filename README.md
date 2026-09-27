@@ -55,3 +55,5 @@ Each of these cost a `not stored` or a wasted run, in the order they were hit.
 7. The headless agent ran `memorable forget --yes` to get a clean store and wiped consent for the machine. The prompt now bans it.
 8. The Claude Code hook names the verify command but not the files edited, so the warm coding run still reads two files. Read and Edit steps are classed `other` and dropped from the injected text.
 9. `memorable show` truncates long step lines with `… (line truncated)`. A step whose command carries a note body or file text cannot be replayed. Commands have to carry identifiers only.
+10. Claude Code in auto mode refuses the key line, and can refuse `memorable enable`, as data exfiltration, and the agent reported that refusal as Memorable being broken. One approval clears it, or `Bash(memorable:*)` in the person's settings. The prompt now says whose refusal it is.
+11. `memorable show <slug>` answered `not found.` for the slug `memorable recall` had just printed: stored slugs carry a `procedures/` prefix and the comparison was exact. That is the last step of every setup prompt. Fixed in 0.5.31, which takes either form.
