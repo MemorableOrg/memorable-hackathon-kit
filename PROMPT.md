@@ -6,14 +6,18 @@ You are integrating Memorable, procedural memory for agents, into the agent in t
 
 ```sh
 npm i -g memorable-cli                       # no npm? curl -fsSL https://memorable.sh/install.sh | sh
-echo 'mk_...' | memorable login --paste      # the key you were given; signs in with no browser
 memorable enable                             # write consent; nothing is stored before this
+echo 'mk_...' | memorable login --paste      # the key you were given; signs in with no browser
 memorable doctor                             # every line must read ✓
 ```
 
-No key? Stop and ask the human for one from memorable.sh/dash (Environments, then Connect). Do not run `memorable login` without `--paste`: it opens a browser and waits, and your shell tool times out before anyone approves. Never print the key back. Never run `memorable forget` or `memorable disable`: both turn capture off for the whole machine. To test a cold run, use a goal string you have not used before.
+One fact each, and each one cost a failed run:
 
-Your own permission system may refuse one of these lines. Claude Code in auto mode refuses a key on a command line as data exfiltration, and it can refuse `memorable enable` too. That is your harness, not Memorable: name the line it refused and ask the human to approve it. They can also allow `Bash(memorable:*)` in their Claude Code settings so only the key line ever asks. Do not work around a refusal, do not skip the command, and do not report it as Memorable being broken.
+- **The key comes from the human.** They get it at memorable.sh/dash, Environments, then Connect. Never print it back.
+- **Never run `memorable login` without `--paste`.** It opens a browser and waits, and your shell tool times out before anyone approves.
+- **A refused line is your harness, not Memorable.** Claude Code in auto mode refuses a key on a command line as data exfiltration, and can refuse `memorable enable` too. Name the line and ask the human to approve it; they can allow `Bash(memorable:*)` in their settings instead. Never work around a refusal, never skip the command, and do not report it as Memorable being broken.
+- **Never run `memorable forget` or `memorable disable`.** Both turn capture off for the whole machine.
+- **To test a cold run, use a goal string you have not used before.**
 
 ## 2. If the agent is Claude Code, Codex, Antigravity or Devin
 
